@@ -22,7 +22,8 @@ import {
   AlertCircle,
   Award,
   Users,
-  Info
+  Info,
+  MessageCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -79,15 +80,55 @@ const BonusItem = ({ title, value, desc, icon: Icon, isBonus = true }: { title: 
 export default function App() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [activeModal, setActiveModal] = useState<'terms' | 'privacy' | 'support' | null>(null);
+  const [showExitPopup, setShowExitPopup] = useState(false);
+  const [hasShownExitPopup, setHasShownExitPopup] = useState(false);
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes in seconds
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallBtn, setShowInstallBtn] = useState(false);
 
   useEffect(() => {
-    if (activeModal) {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallBtn(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setShowInstallBtn(false);
+    }
+    setDeferredPrompt(null);
+  };
+
+  useEffect(() => {
+    if (activeModal || showExitPopup) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
-  }, [activeModal]);
+  }, [activeModal, showExitPopup]);
+
+  useEffect(() => {
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (e.clientY <= 0 && !hasShownExitPopup) {
+        setShowExitPopup(true);
+        setHasShownExitPopup(true);
+      }
+    };
+
+    document.addEventListener('mouseleave', handleMouseLeave);
+    return () => document.removeEventListener('mouseleave', handleMouseLeave);
+  }, [hasShownExitPopup]);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -200,26 +241,46 @@ export default function App() {
         {/* The Pain Section - Hero's Journey: The Call to Adventure */}
         <section className="py-16 sm:py-24 bg-white">
           <div className="max-w-4xl mx-auto px-4 text-center">
-            <span className="text-red-600 font-bold text-sm uppercase tracking-widest mb-4 block">A Realidade Dói</span>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-12">Você sente que está correndo em uma esteira financeira?</h2>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <span className="text-red-600 font-bold text-sm uppercase tracking-widest mb-4 block">A Realidade Dói</span>
+              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-12">Você sente que está correndo em uma esteira financeira?</h2>
+            </motion.div>
             <div className="grid md:grid-cols-3 gap-8">
               {[
                 { icon: Clock, text: "As noites são longas quando o pensamento é: 'como vou pagar o aluguel e o cartão?'" },
                 { icon: AlertCircle, text: "O coração dispara só de ouvir a notificação do banco. Você vive fugindo da realidade." },
                 { icon: CreditCard, text: "O salário cai na conta e, em 2 dias, ele some em juros, taxas e boletos atrasados." }
               ].map((item, i) => (
-                <div key={i} className="p-6 sm:p-8 rounded-3xl bg-slate-50 border border-slate-100 text-left hover:shadow-lg transition-shadow">
+                <motion.div 
+                  key={i} 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                  className="p-6 sm:p-8 rounded-3xl bg-slate-50 border border-slate-100 text-left hover:shadow-lg transition-shadow"
+                >
                   <item.icon className="w-10 h-10 sm:w-12 sm:h-12 text-red-600 mb-6" />
                   <p className="text-slate-700 font-semibold leading-relaxed">{item.text}</p>
-                </div>
+                </motion.div>
               ))}
             </div>
-            <div className="mt-12 p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br from-red-50 to-white border border-red-100 shadow-inner">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="mt-12 p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br from-red-50 to-white border border-red-100 shadow-inner"
+            >
               <p className="text-xl sm:text-2xl text-red-900 font-black leading-tight">
                 "O sistema foi feito para te manter devedor. Se você não aprender as regras do jogo, o banco sempre será o dono do seu suor."
               </p>
               <p className="mt-4 text-red-700 font-bold">— Eduardo César</p>
-            </div>
+            </motion.div>
           </div>
         </section>
 
@@ -257,6 +318,10 @@ export default function App() {
               ].map((phase, i) => (
                 <motion.div 
                   key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: i * 0.1 }}
                   whileHover={{ y: -5 }}
                   className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100"
                 >
@@ -562,13 +627,20 @@ export default function App() {
                 { title: "Mindset de Prosperidade", desc: "Como reprogramar seu cérebro para parar de gastar por impulso e começar a poupar.", icon: Zap },
                 { title: "Futuro Investidor", desc: "O passo a passo para sair do zero e fazer seu primeiro investimento seguro.", icon: Award }
               ].map((benefit, i) => (
-                <div key={i} className="p-8 rounded-3xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-green-100 transition-all group">
+                <motion.div 
+                  key={i} 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                  className="p-8 rounded-3xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-green-100 transition-all group"
+                >
                   <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                     <benefit.icon className="w-8 h-8 text-green-700" />
                   </div>
                   <h4 className="text-xl font-bold text-slate-900 mb-3">{benefit.title}</h4>
                   <p className="text-slate-600 leading-relaxed">{benefit.desc}</p>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -747,7 +819,13 @@ export default function App() {
 
         {/* Final CTA */}
         <section className="py-16 sm:py-24 bg-white">
-          <div className="max-w-4xl mx-auto px-4 text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="max-w-4xl mx-auto px-4 text-center"
+          >
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8">
               <TrendingUp className="text-green-700 w-8 h-8 sm:w-10 sm:h-10" />
             </div>
@@ -761,7 +839,7 @@ export default function App() {
               <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
             </button>
             <p className="mt-6 text-slate-400 text-sm">Acesso vitalício e atualizações gratuitas.</p>
-          </div>
+          </motion.div>
         </section>
       </main>
 
@@ -776,6 +854,15 @@ export default function App() {
               <button onClick={() => setActiveModal('terms')} className="hover:text-white transition-colors">Termos de Uso</button>
               <button onClick={() => setActiveModal('privacy')} className="hover:text-white transition-colors">Privacidade</button>
               <button onClick={() => setActiveModal('support')} className="hover:text-white transition-colors">Suporte</button>
+              {showInstallBtn && (
+                <button 
+                  onClick={handleInstallClick}
+                  className="bg-green-700 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition-colors font-bold flex items-center gap-1"
+                >
+                  <Zap className="w-3 h-3" />
+                  Instalar App
+                </button>
+              )}
             </div>
             <p className="text-sm">© 2026 EC Finanças. Todos os direitos reservados.</p>
           </div>
@@ -868,6 +955,93 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Exit Intent Popup */}
+      <AnimatePresence>
+        {showExitPopup && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowExitPopup(false)}
+              className="absolute inset-0 bg-slate-950/90 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 40 }}
+              className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl overflow-hidden"
+            >
+              <div className="absolute top-4 right-4 z-10">
+                <button 
+                  onClick={() => setShowExitPopup(false)}
+                  className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                >
+                  <Zap className="w-5 h-5 rotate-45 text-slate-500" />
+                </button>
+              </div>
+
+              <div className="p-8 sm:p-12 text-center">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-100 text-green-600 text-xs font-black uppercase tracking-widest mb-6">
+                  <Star className="w-4 h-4 fill-current" />
+                  <span>NÃO PERCA ESTA OPORTUNIDADE</span>
+                </div>
+                
+                <h3 className="text-3xl sm:text-4xl font-black text-slate-900 leading-tight mb-4">
+                  O <span className="text-green-600">Combo Prosperidade</span> Completo
+                </h3>
+                
+                <p className="text-slate-600 mb-8 text-lg">
+                  Garanta seu acesso ao método completo e todos os bônus exclusivos antes de sair. Sua liberdade financeira não pode esperar!
+                </p>
+
+                <div className="bg-slate-50 rounded-3xl p-6 border-2 border-slate-100 mb-8">
+                  <p className="text-sm text-slate-500 font-bold uppercase tracking-wider mb-1">Valor do Investimento</p>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-4xl font-black text-slate-900">R$ 49,90</span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 font-bold mt-2 uppercase">Acesso Vitalício + Todos os Bônus</p>
+                </div>
+
+                <a 
+                  href="https://pay.hotmart.com/F102965388G?off=frag2i92&hotfeature=51"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-green-700 hover:bg-green-800 text-white py-5 rounded-2xl font-black text-xl transition-all shadow-xl shadow-green-900/30 flex items-center justify-center gap-3 group"
+                >
+                  GARANTIR MEU ACESSO AGORA
+                  <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                </a>
+                
+                <button 
+                  onClick={() => setShowExitPopup(false)}
+                  className="mt-6 text-slate-400 text-sm font-bold hover:text-slate-600 transition-colors"
+                >
+                  Continuar navegando na página
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating WhatsApp Button */}
+      <motion.a
+        href="https://wa.me/5581986775689?text=Olá! Gostaria de saber mais sobre o método Do Vermelho ao Verde."
+        target="_blank"
+        rel="noopener noreferrer"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        className="fixed bottom-6 right-6 z-[90] bg-green-500 text-white p-4 rounded-full shadow-2xl shadow-green-500/40 flex items-center justify-center group"
+      >
+        <MessageCircle className="w-7 h-7" />
+        <span className="max-w-0 overflow-hidden group-hover:max-w-xs group-hover:ml-2 transition-all duration-300 font-bold whitespace-nowrap">
+          Falar no WhatsApp
+        </span>
+      </motion.a>
     </div>
   );
 }
