@@ -36,6 +36,13 @@ const COLORS = {
   text: '#0f172a'
 };
 
+const ANIMATION_PROPS = {
+  initial: { opacity: 0, y: 30 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-50px" },
+  transition: { duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }
+};
+
 const BonusItem = ({ title, value, desc, icon: Icon, isBonus = true }: { title: string, value: string, desc: string, icon: any, isBonus?: boolean }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -174,9 +181,8 @@ export default function App() {
           <div className="max-w-7xl mx-auto px-4 relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
+                {...ANIMATION_PROPS}
+                transition={{ ...ANIMATION_PROPS.transition, delay: 0.1 }}
               >
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-bold mb-6">
                   <Star className="w-4 h-4 fill-current" />
@@ -204,9 +210,8 @@ export default function App() {
               </motion.div>
 
               <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
+                {...ANIMATION_PROPS}
+                transition={{ ...ANIMATION_PROPS.transition, delay: 0.3 }}
                 className="relative"
               >
                 <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl shadow-green-900/20 border-4 sm:border-8 border-white">
@@ -241,12 +246,7 @@ export default function App() {
         {/* The Pain Section - Hero's Journey: The Call to Adventure */}
         <section className="py-16 sm:py-24 bg-white">
           <div className="max-w-4xl mx-auto px-4 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
+            <motion.div {...ANIMATION_PROPS}>
               <span className="text-red-600 font-bold text-sm uppercase tracking-widest mb-4 block">A Realidade Dói</span>
               <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-12">Você sente que está correndo em uma esteira financeira?</h2>
             </motion.div>
@@ -258,10 +258,8 @@ export default function App() {
               ].map((item, i) => (
                 <motion.div 
                   key={i} 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                  {...ANIMATION_PROPS}
+                  transition={{ ...ANIMATION_PROPS.transition, delay: i * 0.1 }}
                   className="p-6 sm:p-8 rounded-3xl bg-slate-50 border border-slate-100 text-left hover:shadow-lg transition-shadow"
                 >
                   <item.icon className="w-10 h-10 sm:w-12 sm:h-12 text-red-600 mb-6" />
@@ -270,10 +268,8 @@ export default function App() {
               ))}
             </div>
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.4 }}
+              {...ANIMATION_PROPS}
+              transition={{ ...ANIMATION_PROPS.transition, delay: 0.4 }}
               className="mt-12 p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br from-red-50 to-white border border-red-100 shadow-inner"
             >
               <p className="text-xl sm:text-2xl text-red-900 font-black leading-tight">
@@ -318,10 +314,8 @@ export default function App() {
               ].map((phase, i) => (
                 <motion.div 
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                  {...ANIMATION_PROPS}
+                  transition={{ ...ANIMATION_PROPS.transition, delay: i * 0.1 }}
                   whileHover={{ y: -5 }}
                   className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100"
                 >
@@ -347,7 +341,7 @@ export default function App() {
         <section className="py-16 sm:py-24 bg-green-900 text-white overflow-hidden relative">
           <div className="max-w-7xl mx-auto px-4 relative z-10">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <div>
+              <motion.div {...ANIMATION_PROPS}>
                 <h2 className="text-3xl sm:text-4xl font-extrabold mb-6">E você não vai levar apenas o Ebook...</h2>
                 <p className="text-green-100 text-lg mb-10">Preparei bônus exclusivos para acelerar sua jornada e garantir que você nunca mais volte para o vermelho.</p>
                 
@@ -359,7 +353,12 @@ export default function App() {
                     { title: "Cards de Mentalidade Blindada", desc: "Mensagens de incentivo para imprimir e manter o foco total na sua meta.", value: "R$ 19,00" },
                     { title: "App Dívida Zero", desc: "Acesso ao aplicativo exclusivo para gestão financeira e controle de dívidas na palma da mão.", value: "R$ 59,00" }
                   ].map((bonus, i) => (
-                    <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10">
+                    <motion.div 
+                      key={i} 
+                      {...ANIMATION_PROPS}
+                      transition={{ ...ANIMATION_PROPS.transition, delay: i * 0.1 }}
+                      className="flex items-start gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10"
+                    >
                       <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center shrink-0">
                         <Gift className="w-6 h-6 text-white" />
                       </div>
@@ -368,11 +367,15 @@ export default function App() {
                         <p className="text-green-200 text-sm">{bonus.desc}</p>
                         <span className="inline-block mt-2 text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded uppercase">Valor: {bonus.value}</span>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
-              </div>
-              <div className="relative">
+              </motion.div>
+              <motion.div 
+                {...ANIMATION_PROPS}
+                transition={{ ...ANIMATION_PROPS.transition, delay: 0.3 }}
+                className="relative"
+              >
                 <div className="aspect-square bg-green-800 rounded-full absolute -top-20 -right-20 blur-3xl opacity-50" />
                 <div className="relative z-10 bg-white text-slate-900 p-8 rounded-3xl shadow-2xl rotate-3">
                   <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -401,7 +404,7 @@ export default function App() {
                     APROVEITAR AGORA
                   </button>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>
@@ -409,14 +412,21 @@ export default function App() {
         {/* Pricing Section */}
         <section id="pricing" className="py-16 sm:py-24 bg-white">
           <div className="max-w-5xl mx-auto px-4">
-            <div className="text-center mb-16">
+            <motion.div 
+              {...ANIMATION_PROPS}
+              className="text-center mb-16"
+            >
               <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">Escolha o seu plano</h2>
               <p className="text-slate-600">O investimento que se paga na primeira economia que você fizer.</p>
-            </div>
+            </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8 items-stretch">
               {/* Basic Option */}
-              <div className="p-6 sm:p-8 rounded-3xl border-2 border-slate-100 flex flex-col">
+              <motion.div 
+                {...ANIMATION_PROPS}
+                transition={{ ...ANIMATION_PROPS.transition, delay: 0.1 }}
+                className="p-6 sm:p-8 rounded-3xl border-2 border-slate-100 flex flex-col"
+              >
                 <h3 className="text-xl font-bold mb-2">Apenas o Ebook</h3>
                 <p className="text-slate-500 text-sm mb-6">Ideal para quem quer apenas o conteúdo teórico do método.</p>
                 <div className="mb-8">
@@ -452,10 +462,14 @@ export default function App() {
                 >
                   Comprar Ebook
                 </a>
-              </div>
+              </motion.div>
 
               {/* Premium Option */}
-              <div className="p-6 sm:p-8 rounded-3xl border-4 border-green-600 bg-green-50 relative flex flex-col md:scale-105 shadow-2xl shadow-green-900/10">
+              <motion.div 
+                {...ANIMATION_PROPS}
+                transition={{ ...ANIMATION_PROPS.transition, delay: 0.3 }}
+                className="p-6 sm:p-8 rounded-3xl border-4 border-green-600 bg-green-50 relative flex flex-col md:scale-105 shadow-2xl shadow-green-900/10"
+              >
                 <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-green-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest whitespace-nowrap">
                   🔥 OFERTA POR TEMPO LIMITADO
                 </div>
@@ -583,7 +597,7 @@ export default function App() {
                     </motion.div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
             
             <div className="mt-16 flex flex-wrap justify-center gap-x-12 gap-y-6">
@@ -629,10 +643,8 @@ export default function App() {
               ].map((benefit, i) => (
                 <motion.div 
                   key={i} 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                  {...ANIMATION_PROPS}
+                  transition={{ ...ANIMATION_PROPS.transition, delay: i * 0.1 }}
                   className="p-8 rounded-3xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-green-100 transition-all group"
                 >
                   <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -654,7 +666,10 @@ export default function App() {
           </div>
           
           <div className="max-w-5xl mx-auto px-4 relative z-10">
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-16 text-center">
+            <motion.div 
+              {...ANIMATION_PROPS}
+              className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-16 text-center"
+            >
               <div className="w-20 h-20 sm:w-24 sm:h-24 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-green-600/40">
                 <Award className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
               </div>
@@ -676,7 +691,7 @@ export default function App() {
                   <span className="font-bold uppercase tracking-widest text-xs">Satisfação Garantida</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
@@ -688,9 +703,7 @@ export default function App() {
           <div className="max-w-7xl mx-auto px-4 relative z-10">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
+                {...ANIMATION_PROPS}
                 className="relative"
               >
                 {/* Visual "Reach" - Striking Image Layout */}
@@ -728,7 +741,10 @@ export default function App() {
                 </div>
               </motion.div>
 
-              <div>
+              <motion.div
+                {...ANIMATION_PROPS}
+                transition={{ ...ANIMATION_PROPS.transition, delay: 0.2 }}
+              >
                 {/* Relevance & Authority */}
                 <span className="inline-block px-4 py-1 rounded-full bg-green-100 text-green-800 font-bold text-xs uppercase tracking-widest mb-4">
                   Autoridade em Finanças
@@ -775,7 +791,7 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>
@@ -783,7 +799,12 @@ export default function App() {
         {/* FAQ Section */}
         <section className="py-24 bg-slate-50">
           <div className="max-w-3xl mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12">Perguntas Frequentes</h2>
+            <motion.h2 
+              {...ANIMATION_PROPS}
+              className="text-3xl font-bold text-center mb-12"
+            >
+              Perguntas Frequentes
+            </motion.h2>
             <div className="space-y-4">
               {[
                 { q: "O conteúdo é para iniciantes?", a: "Sim! O método foi desenhado para quem não entende nada de finanças e quer um passo a passo simples, sem termos técnicos complicados." },
@@ -791,7 +812,12 @@ export default function App() {
                 { q: "E se eu não gostar do conteúdo?", a: "Você tem 7 dias de garantia incondicional. Se achar que o material não é para você, devolvemos 100% do seu dinheiro sem perguntas." },
                 { q: "Preciso de muito dinheiro para começar a investir?", a: "De forma alguma. No Desafio de 30 dias, mostramos como você pode começar com apenas R$ 10,00 ou R$ 50,00." }
               ].map((faq, i) => (
-                <div key={i} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <motion.div 
+                  key={i} 
+                  {...ANIMATION_PROPS}
+                  transition={{ ...ANIMATION_PROPS.transition, delay: i * 0.1 }}
+                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden"
+                >
                   <button 
                     onClick={() => setActiveFaq(activeFaq === i ? null : i)}
                     className="w-full p-6 text-left flex items-center justify-between font-bold text-slate-800"
@@ -811,7 +837,7 @@ export default function App() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -820,10 +846,7 @@ export default function App() {
         {/* Final CTA */}
         <section className="py-16 sm:py-24 bg-white">
           <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            {...ANIMATION_PROPS}
             className="max-w-4xl mx-auto px-4 text-center"
           >
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8">
