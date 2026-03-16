@@ -26,6 +26,8 @@ import {
   MessageCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import ebookCover from './assets/ebook-cover.png';
+import eduardoImage from './assets/eduardo.jpeg';
 
 const COLORS = {
   primary: '#166534', // Green 800
@@ -216,7 +218,7 @@ export default function App() {
               >
                 <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl shadow-green-900/20 border-4 sm:border-8 border-white">
                   <img 
-                    src="/ebook-cover.png" 
+                    src={ebookCover} 
                     alt="Capa do Ebook Do Vermelho ao Verde" 
                     className="w-full h-auto object-cover"
                     referrerPolicy="no-referrer"
@@ -710,7 +712,7 @@ export default function App() {
                 <div className="relative z-10">
                   <div className="aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl border-[8px] sm:border-[12px] border-white">
                     <img 
-                      src="/eduardo.jpeg" 
+                      src={eduardoImage} 
                       alt="EC Finanças - Especialista em Finanças" 
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
