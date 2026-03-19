@@ -86,6 +86,115 @@ const BonusItem = ({ title, value, desc, icon: Icon, isBonus = true }: { title: 
   );
 };
 
+const Quiz = () => {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [showResult, setShowResult] = useState(false);
+
+  const questions = [
+    {
+      question: "Qual o valor total aproximado das suas dívidas hoje?",
+      options: ["Menos de R$ 5.000", "Entre R$ 5.000 e R$ 20.000", "Entre R$ 20.000 e R$ 50.000", "Mais de R$ 50.000"]
+    },
+    {
+      question: "Quanto do seu salário sobra no final do mês?",
+      options: ["Nada, fico no negativo", "Não sobra nada, vivo no limite", "Sobra um pouco, mas não sei onde vai", "Sobra e eu já guardo algo"]
+    },
+    {
+      question: "Você já tentou negociar suas dívidas com o banco?",
+      options: ["Sim, mas as parcelas continuam altas", "Nunca tentei por medo ou falta de conhecimento", "Já tentei e desisti", "Ainda não precisei"]
+    },
+    {
+      question: "Qual seu maior objetivo financeiro para os próximos 12 meses?",
+      options: ["Limpar meu nome e ter paz", "Aprender a investir e multiplicar meu dinheiro", "Comprar algo importante sem fazer dívidas", "Ter uma reserva de emergência sólida"]
+    }
+  ];
+
+  const handleAnswer = (answer: string) => {
+    const newAnswers = [...answers, answer];
+    setAnswers(newAnswers);
+    if (step < questions.length - 1) {
+      setStep(step + 1);
+    } else {
+      setShowResult(true);
+    }
+  };
+
+  const getDiagnosis = () => {
+    if (answers[0] === "Mais de R$ 50.000" || answers[1] === "Nada, fico no negativo") {
+      return {
+        title: "Nível de Alerta: Crítico",
+        desc: "Sua situação exige uma intervenção imediata. O banco está lucrando com seu suor através de juros compostos negativos. Você precisa do Método Do Vermelho ao Verde agora para estancar a sangria.",
+        color: "text-red-600"
+      };
+    }
+    return {
+      title: "Nível de Alerta: Moderado",
+      desc: "Você ainda tem controle, mas está perdendo dinheiro para o sistema. Com pequenos ajustes e a estratégia certa de negociação, você pode acelerar sua saída das dívidas em meses.",
+      color: "text-orange-600"
+    };
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto bg-white rounded-[2rem] p-8 shadow-2xl border border-slate-100 relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-1 bg-slate-100">
+        <motion.div 
+          className="h-full bg-green-600"
+          initial={{ width: 0 }}
+          animate={{ width: `${((step + 1) / questions.length) * 100}%` }}
+        />
+      </div>
+
+      <AnimatePresence mode="wait">
+        {!showResult ? (
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
+            <span className="text-[10px] font-bold text-green-600 uppercase tracking-widest">Pergunta {step + 1} de {questions.length}</span>
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">{questions[step].question}</h3>
+            <div className="grid gap-3">
+              {questions[step].options.map((option, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleAnswer(option)}
+                  className="w-full text-left p-4 rounded-xl border border-slate-200 hover:border-green-500 hover:bg-green-50 transition-all font-medium text-slate-700"
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center space-y-6"
+          >
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+              <ShieldCheck className="w-8 h-8 text-green-700" />
+            </div>
+            <h3 className={`text-2xl font-black ${getDiagnosis().color}`}>{getDiagnosis().title}</h3>
+            <p className="text-slate-600 leading-relaxed">{getDiagnosis().desc}</p>
+            <div className="pt-4">
+              <button 
+                onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+                className="bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-green-900/20 flex items-center justify-center gap-2 mx-auto group"
+              >
+                VER MEU PLANO DE AÇÃO
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 export default function App() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [activeModal, setActiveModal] = useState<'terms' | 'privacy' | 'support' | null>(null);
@@ -178,35 +287,35 @@ export default function App() {
       </header>
 
       <main className="pt-16">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden pt-12 pb-20 lg:pt-32 lg:pb-40">
+        {/* Hero Section - The Call to Adventure */}
+        <section className="relative overflow-hidden pt-12 pb-20 lg:pt-32 lg:pb-40 bg-slate-50">
           <div className="max-w-7xl mx-auto px-4 relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <motion.div 
                 {...ANIMATION_PROPS}
                 transition={{ ...ANIMATION_PROPS.transition, delay: 0.1 }}
               >
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-bold mb-6">
-                  <Star className="w-4 h-4 fill-current" />
-                  <span>MÉTODO TESTADO E COMPROVADO</span>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-100 text-red-800 text-sm font-bold mb-6">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>VOCÊ NÃO ESTÁ SOZINHO NESSA LUTA</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-slate-900 leading-[1.1] mb-6 tracking-tight">
-                  Pare de Trabalhar para <span className="text-red-600">Pagar Juros</span> e Recupere sua Liberdade em <span className="text-green-700">30 Dias</span>.
+                  Até quando você vai <span className="text-red-600">trabalhar apenas</span> para pagar boletos e juros?
                 </h1>
                 <p className="text-lg sm:text-xl text-slate-600 mb-10 leading-relaxed max-w-xl">
-                  O método definitivo para brasileiros que querem sair do sufoco, organizar cada centavo e finalmente ver o saldo no azul — mesmo que você ache que ganha pouco.
+                  Durante 20 anos, eu estive nos bastidores do sistema financeiro, observando como os bancos lucram com o seu silêncio e a sua falta de informação. Eu decidi atravessar o portal e trazer comigo o conhecimento que eles tentam esconder a sete chaves. Hoje, minha missão é ser o seu guia para que você nunca mais seja refém de juros abusivos. <strong>Isso não é vida, e você merece a liberdade.</strong>
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button 
                     onClick={scrollToOffer}
                     className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2 group"
                   >
-                    COMEÇAR MINHA TRANSFORMAÇÃO
+                    ATRAVESSAR PARA A LIBERDADE
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </button>
                   <div className="flex items-center gap-3 px-4 py-2">
                     <ShieldCheck className="w-5 h-5 text-green-600" />
-                    <span className="text-sm text-slate-500 font-medium text-center sm:text-left">Satisfação Garantida ou seu dinheiro de volta</span>
+                    <span className="text-sm text-slate-500 font-medium text-center sm:text-left">Seu mapa seguro para o novo mundo</span>
                   </div>
                 </div>
               </motion.div>
@@ -216,24 +325,25 @@ export default function App() {
                 transition={{ ...ANIMATION_PROPS.transition, delay: 0.3 }}
                 className="relative"
               >
-                <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl shadow-green-900/20 border-4 sm:border-8 border-white">
+                <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl shadow-red-900/10 border-4 sm:border-8 border-white">
                   <img 
                     src={ebookCover} 
                     alt="Capa do Ebook Do Vermelho ao Verde" 
-                    className="w-full h-auto object-cover"
+                    className="w-full h-auto object-cover grayscale-[0.2] hover:grayscale-0 transition-all"
                     referrerPolicy="no-referrer"
                     decoding="async"
+                    loading="lazy"
                   />
                 </div>
                 {/* Floating Elements */}
-                <div className="absolute -top-4 -right-4 sm:-top-6 sm:-right-6 bg-white p-3 sm:p-4 rounded-2xl shadow-xl z-20 animate-bounce">
+                <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 bg-white p-3 sm:p-4 rounded-2xl shadow-xl z-20">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <Zap className="text-green-700 w-5 h-5 sm:w-6 sm:h-6" />
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-full flex items-center justify-center">
+                      <AlertCircle className="text-red-700 w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
                     <div>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Resultado Rápido</p>
-                      <p className="font-bold text-slate-800 text-sm sm:text-base">30 Dias de Desafio</p>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">O Fim do Sufoco</p>
+                      <p className="font-bold text-slate-800 text-sm sm:text-base">Liberdade em 30 Dias</p>
                     </div>
                   </div>
                 </div>
@@ -242,43 +352,55 @@ export default function App() {
           </div>
           
           {/* Background Decor */}
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-green-50/50 -z-0 skew-x-12 translate-x-1/4" />
+          <div className="absolute top-0 right-0 w-1/2 h-full bg-red-50/30 -z-0 skew-x-12 translate-x-1/4" />
         </section>
 
-        {/* The Pain Section - Hero's Journey: The Call to Adventure */}
+        {/* The Pain Mirror Section */}
         <section className="py-16 sm:py-24 bg-white">
           <div className="max-w-4xl mx-auto px-4 text-center">
             <motion.div {...ANIMATION_PROPS}>
-              <span className="text-red-600 font-bold text-sm uppercase tracking-widest mb-4 block">A Realidade Dói</span>
-              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-12">Você sente que está correndo em uma esteira financeira?</h2>
+              <span className="text-slate-500 font-bold text-sm uppercase tracking-widest mb-4 block">O "Mundo Comum" de quem está no vermelho</span>
+              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-12">Alguma dessas cenas parece familiar para você?</h2>
             </motion.div>
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { icon: Clock, text: "As noites são longas quando o pensamento é: 'como vou pagar o aluguel e o cartão?'" },
-                { icon: AlertCircle, text: "O coração dispara só de ouvir a notificação do banco. Você vive fugindo da realidade." },
-                { icon: CreditCard, text: "O salário cai na conta e, em 2 dias, ele some em juros, taxas e boletos atrasados." }
+                { icon: Clock, title: "Noites em Claro", text: "Você deita a cabeça no travesseiro, mas o sono não vem. O pensamento é um só: 'Como vou pagar o aluguel e o cartão amanhã?'" },
+                { icon: AlertCircle, title: "Coração Disparado", text: "O celular vibra e seu estômago gela. Você sabe que é o banco ou um cobrador. Viver fugindo da realidade é exaustivo." },
+                { icon: Users, title: "Estresse Familiar", text: "As brigas em casa por causa de dinheiro estão destruindo seus relacionamentos. O clima é de tensão constante e culpa." }
               ].map((item, i) => (
                 <motion.div 
                   key={i} 
                   {...ANIMATION_PROPS}
                   transition={{ ...ANIMATION_PROPS.transition, delay: i * 0.1 }}
-                  className="p-6 sm:p-8 rounded-3xl bg-slate-50 border border-slate-100 text-left hover:shadow-lg transition-shadow"
+                  className="p-6 sm:p-8 rounded-3xl bg-slate-50 border border-slate-100 text-left hover:border-red-200 transition-all"
                 >
-                  <item.icon className="w-10 h-10 sm:w-12 sm:h-12 text-red-600 mb-6" />
-                  <p className="text-slate-700 font-semibold leading-relaxed">{item.text}</p>
+                  <item.icon className="w-10 h-10 text-red-600 mb-6" />
+                  <h4 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h4>
+                  <p className="text-slate-600 leading-relaxed">{item.text}</p>
                 </motion.div>
               ))}
             </div>
+            
             <motion.div 
               {...ANIMATION_PROPS}
-              transition={{ ...ANIMATION_PROPS.transition, delay: 0.4 }}
-              className="mt-12 p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br from-red-50 to-white border border-red-100 shadow-inner"
+              className="mt-16 p-8 rounded-3xl bg-red-50 border border-red-100"
             >
-              <p className="text-xl sm:text-2xl text-red-900 font-black leading-tight">
-                "O sistema foi feito para te manter devedor. Se você não aprender as regras do jogo, o banco sempre será o dono do seu suor."
+              <p className="text-lg sm:text-xl text-red-900 font-bold italic leading-relaxed">
+                "Minha jornada começou no coração do sistema que hoje te sufoca. Após duas décadas vendo de perto as armadilhas montadas para prender o seu patrimônio, eu escolhi o caminho da verdade. Eu decifrei o código que os bancos usam contra você e hoje retorno com o mapa estratégico para te guiar para fora desse labirinto de dívidas."
               </p>
               <p className="mt-4 text-red-700 font-bold">— Eduardo César</p>
             </motion.div>
+          </div>
+        </section>
+
+        {/* Quiz Section - The Awakening */}
+        <section className="py-16 sm:py-24 bg-slate-50">
+          <div className="max-w-4xl mx-auto px-4">
+            <motion.div {...ANIMATION_PROPS} className="text-center mb-12">
+              <h3 className="text-2xl sm:text-3xl font-bold text-slate-900">Descubra agora a gravidade da sua situação</h3>
+              <p className="text-slate-600 mt-4">Responda honestamente para receber seu diagnóstico inicial.</p>
+            </motion.div>
+            <Quiz />
           </div>
         </section>
 
@@ -353,7 +475,8 @@ export default function App() {
                     { title: "Planilha de Controle de Gastos", desc: "Uma ferramenta intuitiva para dominar seu dinheiro sem complicação.", value: "R$ 37,00" },
                     { title: "Biblioteca da Prosperidade", desc: "Curadoria exclusiva dos melhores livros, vídeos e apps para acelerar sua evolução.", value: "R$ 27,00" },
                     { title: "Cards de Mentalidade Blindada", desc: "Mensagens de incentivo para imprimir e manter o foco total na sua meta.", value: "R$ 19,00" },
-                    { title: "App Dívida Zero", desc: "Acesso ao aplicativo exclusivo para gestão financeira e controle de dívidas na palma da mão.", value: "R$ 59,00" }
+                    { title: "App Dívida Zero", desc: "Acesso ao aplicativo exclusivo para gestão financeira e controle de dívidas na palma da mão.", value: "R$ 59,00" },
+                    { title: "Do Vermelho ao Verde", desc: "O seu guia de estudos definitivo. Acompanhe seu progresso real em cada capítulo e veja sua evolução em tempo real.", value: "R$ 67,00" }
                   ].map((bonus, i) => (
                     <motion.div 
                       key={i} 
@@ -379,32 +502,33 @@ export default function App() {
                 className="relative"
               >
                 <div className="aspect-square bg-green-800 rounded-full absolute -top-20 -right-20 blur-3xl opacity-50" />
-                <div className="relative z-10 bg-white text-slate-900 p-8 rounded-3xl shadow-2xl rotate-3">
+                <div className="relative z-10 bg-white text-slate-900 p-8 rounded-3xl shadow-2xl rotate-3 border-4 border-orange-500">
                   <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                    <Zap className="text-orange-500 fill-current" />
-                    OFERTA ESPECIAL
+                    <Zap className="text-orange-500 fill-current animate-bounce" />
+                    OFERTA RELÂMPAGO
                   </h3>
-                  <p className="text-slate-600 mb-6">Ao garantir o seu acesso hoje, você leva todos os bônus gratuitamente.</p>
+                  <p className="text-slate-600 mb-6 font-medium">Garanta o seu acesso agora e leve todos os bônus gratuitamente antes que o preço suba.</p>
                   <div className="space-y-2 mb-8">
                   <div className="flex justify-between text-sm">
                     <span>Ebook Do Vermelho ao Verde</span>
                     <span className="line-through">R$ 97,00</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span>Pacote de 5 Bônus Exclusivos</span>
-                    <span className="line-through">R$ 189,00</span>
+                    <span>Pacote de 6 Bônus Exclusivos</span>
+                    <span className="line-through">R$ 256,00</span>
                   </div>
                   <div className="flex justify-between font-bold text-lg pt-2 border-t border-slate-100">
                     <span>Valor Total</span>
-                    <span className="text-green-700">R$ 286,00</span>
+                    <span className="text-green-700">R$ 353,00</span>
                   </div>
                   </div>
                   <button 
                     onClick={scrollToOffer}
-                    className="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-2xl font-bold text-xl transition-all shadow-lg shadow-orange-500/30"
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white py-5 rounded-2xl font-black text-2xl transition-all shadow-[0_0_30px_rgba(249,115,22,0.4)] hover:scale-105 active:scale-95"
                   >
                     APROVEITAR AGORA
                   </button>
+                  <p className="text-[10px] text-center mt-4 text-slate-400 font-bold uppercase tracking-widest">Últimas vagas com este desconto</p>
                 </div>
               </motion.div>
             </div>
@@ -447,6 +571,9 @@ export default function App() {
                     App Dívida Zero
                   </li>
                   <li className="flex items-center gap-3 text-slate-300 line-through">
+                    Do Vermelho ao Verde
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-300 line-through">
                     Planilha de Controle
                   </li>
                   <li className="flex items-center gap-3 text-slate-300 line-through">
@@ -457,7 +584,7 @@ export default function App() {
                   </li>
                 </ul>
                 <a 
-                  href="https://pay.hotmart.com/F102965388G?off=frag2i92&hotfeature=51&_hi=eyJjaWQiOiIxNzYzMjUyNTQ2ODMxODAyNzgzODg1MzY1Njg0MjAwIiwiYmlkIjoiMTc2MzI1MjU0NjgzMTgwMjc4Mzg4NTM2NTY4NDIwMCIsInNpZCI6ImU2OTBlMjIxYjA2NDRiZTViMTVjY2U3NTFhMWQxZWZmIn0=.1773532380951"
+                  href="https://pay.kiwify.com.br/nGvBo30"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full py-4 rounded-2xl border-2 border-slate-200 font-bold hover:bg-slate-50 transition-colors text-center block"
@@ -472,32 +599,46 @@ export default function App() {
                 transition={{ ...ANIMATION_PROPS.transition, delay: 0.3 }}
                 className="p-6 sm:p-8 rounded-3xl border-4 border-green-600 bg-green-50 relative flex flex-col md:scale-105 shadow-2xl shadow-green-900/10"
               >
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-green-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest whitespace-nowrap">
-                  🔥 OFERTA POR TEMPO LIMITADO
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest whitespace-nowrap shadow-xl animate-pulse">
+                  ⚠️ ÚLTIMAS VAGAS COM DESCONTO
                 </div>
                 <h3 className="text-2xl font-black mb-1 text-green-900">Combo Prosperidade</h3>
                 <p className="text-green-700/70 text-sm mb-4 font-medium">O caminho mais rápido para a liberdade financeira.</p>
                 
+                {/* Scarcity Indicator */}
+                <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-2xl">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-[10px] font-bold text-red-600 uppercase tracking-wider">Lote de Lançamento</span>
+                    <span className="text-[10px] font-bold text-red-600">Primeiras 50 Vagas</span>
+                  </div>
+                  <div className="h-2 bg-red-100 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: "0%" }}
+                      whileInView={{ width: "15%" }}
+                      transition={{ duration: 1.5, ease: "easeOut" }}
+                      className="h-full bg-red-500"
+                    />
+                  </div>
+                  <p className="text-[9px] text-red-500 mt-2 font-bold text-center uppercase">Seja um dos primeiros a dominar este método</p>
+                </div>
+
                 {/* Countdown Timer */}
-                <div className="mb-6 flex items-center justify-between bg-orange-100 border border-orange-200 rounded-2xl p-2 sm:p-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center animate-pulse">
-                      <Clock className="text-white w-5 h-5" />
+                <div className="mb-6 flex items-center justify-between bg-slate-900 rounded-2xl p-3 shadow-inner">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
+                      <Clock className="text-white w-6 h-6" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-orange-800 uppercase leading-none">A oferta expira em:</p>
-                      <p className="text-lg font-black text-orange-600 leading-none mt-1 font-mono">{formatTime(timeLeft)}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase leading-none">O preço sobe em:</p>
+                      <p className="text-xl font-black text-white leading-none mt-1 font-mono tracking-wider">{formatTime(timeLeft)}</p>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[9px] font-bold text-orange-700 uppercase leading-tight">Vagas com bônus<br/>quase esgotadas!</p>
                   </div>
                 </div>
                 
                 <div className="mb-6 p-4 bg-white rounded-2xl border border-green-100 shadow-sm">
                   <div className="flex justify-between text-xs text-slate-400 mb-1">
-                    <span>Valor Total (Ebook + 5 Bônus)</span>
-                    <span className="line-through">R$ 286,00</span>
+                    <span>Valor Total (Ebook + 6 Bônus)</span>
+                    <span className="line-through">R$ 353,00</span>
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-5xl font-black text-slate-900 tracking-tighter">R$ 49,90</span>
@@ -527,6 +668,12 @@ export default function App() {
                     icon={LayoutDashboard} 
                   />
                   <BonusItem 
+                    title="Do Vermelho ao Verde" 
+                    value="R$ 67,00" 
+                    desc="O seu guia de estudos definitivo. Acompanhe seu progresso real em cada capítulo e veja sua evolução em tempo real." 
+                    icon={TrendingUp} 
+                  />
+                  <BonusItem 
                     title="Planilha de Controle" 
                     value="R$ 37,00" 
                     desc="Ferramenta prática para gerir seus gastos sem complicação." 
@@ -547,22 +694,27 @@ export default function App() {
                 </ul>
 
                 <div className="space-y-4">
-                  <button className="w-full bg-green-700 hover:bg-green-800 text-white py-5 rounded-2xl font-black text-xl transition-all shadow-xl shadow-green-900/30 flex flex-col items-center leading-none relative overflow-hidden group">
+                  <a 
+                    href="https://pay.kiwify.com.br/3djdzQD"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white py-6 rounded-2xl font-black text-2xl transition-all shadow-[0_20px_50px_rgba(249,115,22,0.3)] hover:scale-[1.02] active:scale-95 flex flex-col items-center leading-none relative overflow-hidden group"
+                  >
                     <motion.div 
                       animate={{ 
                         x: ['-100%', '200%'],
                       }}
                       transition={{ 
-                        duration: 2,
+                        duration: 1.5,
                         repeat: Infinity,
                         ease: "linear",
-                        repeatDelay: 3
+                        repeatDelay: 2
                       }}
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12"
                     />
                     QUERO O COMBO COMPLETO
-                    <span className="text-[10px] font-bold opacity-70 mt-1 uppercase tracking-widest">Acesso imediato após o pagamento</span>
-                  </button>
+                    <span className="text-[10px] font-bold opacity-80 mt-1 uppercase tracking-widest">Acesso imediato • Checkout em 1 minuto</span>
+                  </a>
                   
                   <div className="pt-4 border-t border-green-100">
                     <div className="flex items-center justify-center mb-4">
@@ -625,23 +777,23 @@ export default function App() {
           </div>
         </section>
 
-        {/* Benefits Grid */}
+        {/* Enemies vs. The Magic Sword */}
         <section className="py-16 sm:py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-16">
-              <span className="text-green-600 font-bold text-sm uppercase tracking-widest mb-4 block">O Caminho para a Liberdade</span>
-              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">O que você vai dominar com este método</h2>
-              <p className="text-slate-600 max-w-2xl mx-auto text-lg">Esqueça fórmulas mágicas. Aqui você recebe as ferramentas reais que os bancos não querem que você use.</p>
+              <span className="text-red-600 font-bold text-sm uppercase tracking-widest mb-4 block">A Batalha Final</span>
+              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">Derrote os Inimigos da sua Prosperidade</h2>
+              <p className="text-slate-600 max-w-2xl mx-auto text-lg">O ebook "Do Vermelho ao Verde" é a sua <strong>Espada Mágica</strong>. Veja como ela aniquila cada obstáculo no seu caminho.</p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
-                { title: "Blindagem de Salário", desc: "Como impedir que o banco 'sequestre' seu dinheiro assim que ele cai na conta.", icon: ShieldCheck },
-                { title: "Negociação de Elite", desc: "O roteiro exato para reduzir juros abusivos em até 80% sem brigar com ninguém.", icon: MessageSquareQuote },
-                { title: "Organização Sem Sofrimento", desc: "Um sistema que leva apenas 15 minutos por semana para manter tudo sob controle.", icon: LayoutDashboard },
-                { title: "Renda Extra Acelerada", desc: "Estratégias para gerar dinheiro rápido e quitar as dívidas menores primeiro.", icon: TrendingUp },
-                { title: "Mindset de Prosperidade", desc: "Como reprogramar seu cérebro para parar de gastar por impulso e começar a poupar.", icon: Zap },
-                { title: "Futuro Investidor", desc: "O passo a passo para sair do zero e fazer seu primeiro investimento seguro.", icon: Award }
+                { title: "Inimigo: Juros Abusivos", desc: "A Espada Mágica corta as taxas pela metade com roteiros de negociação que o banco não consegue ignorar.", icon: Zap },
+                { title: "Inimigo: Caos Financeiro", desc: "O Mapa da Mina organiza cada centavo em 15 minutos, transformando confusão em clareza absoluta.", icon: LayoutDashboard },
+                { title: "Inimigo: Mente Escassa", desc: "Reprograme suas crenças limitantes e pare de gastar por impulso com técnicas de psicologia bancária.", icon: ShieldCheck },
+                { title: "Inimigo: Salário 'Sequestrado'", desc: "Aprenda a blindar sua conta para que o banco nunca mais toque no seu dinheiro sem permissão.", icon: Lock },
+                { title: "Inimigo: Inércia", desc: "O Desafio de 30 Dias é o seu guia de marcha, forçando o movimento em direção à vitória diária.", icon: TrendingUp },
+                { title: "Inimigo: Medo de Investir", desc: "Transforme o medo em poder. Saia do zero e faça seu dinheiro trabalhar para você, não o contrário.", icon: Award }
               ].map((benefit, i) => (
                 <motion.div 
                   key={i} 
@@ -650,12 +802,47 @@ export default function App() {
                   className="p-8 rounded-3xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-green-100 transition-all group"
                 >
                   <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <benefit.icon className="w-8 h-8 text-green-700" />
+                    <benefit.icon className="w-8 h-8 text-red-600" />
                   </div>
                   <h4 className="text-xl font-bold text-slate-900 mb-3">{benefit.title}</h4>
                   <p className="text-slate-600 leading-relaxed">{benefit.desc}</p>
                 </motion.div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* The Elixir - Life After the Method */}
+        <section className="py-16 sm:py-24 bg-green-900 text-white relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full opacity-20">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-green-500 rounded-full blur-[150px]" />
+          </div>
+          
+          <div className="max-w-5xl mx-auto px-4 relative z-10 text-center">
+            <span className="text-green-400 font-bold text-sm uppercase tracking-widest mb-6 block">O Retorno com o Elixir</span>
+            <h2 className="text-3xl sm:text-5xl font-black mb-8 leading-tight">Imagine acordar amanhã e sentir o <span className="text-green-400">silêncio da paz financeira</span></h2>
+            <div className="grid sm:grid-cols-3 gap-8 mt-16">
+              <div className="p-6">
+                <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Clock className="w-8 h-8 text-green-400" />
+                </div>
+                <h4 className="text-xl font-bold mb-3">Sono Profundo</h4>
+                <p className="text-slate-300 text-sm">Nunca mais perca o sono pensando em boletos. Sua mente estará livre para sonhar, não para calcular dívidas.</p>
+              </div>
+              <div className="p-6">
+                <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Users className="w-8 h-8 text-green-400" />
+                </div>
+                <h4 className="text-xl font-bold mb-3">Harmonia no Lar</h4>
+                <p className="text-slate-300 text-sm">O dinheiro deixa de ser motivo de briga e passa a ser a ferramenta para construir memórias com quem você ama.</p>
+              </div>
+              <div className="p-6">
+                <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <TrendingUp className="w-8 h-8 text-green-400" />
+                </div>
+                <h4 className="text-xl font-bold mb-3">Patrimônio Vivo</h4>
+                <p className="text-slate-300 text-sm">Ver seu dinheiro crescer todo mês, sabendo que cada centavo está trabalhando para a sua liberdade futura.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -749,43 +936,47 @@ export default function App() {
               >
                 {/* Relevance & Authority */}
                 <span className="inline-block px-4 py-1 rounded-full bg-green-100 text-green-800 font-bold text-xs uppercase tracking-widest mb-4">
-                  Autoridade em Finanças
+                  Seu Mentor na Jornada
                 </span>
                 <h2 className="text-3xl sm:text-5xl font-black text-black leading-tight mb-8">
-                  A mente por trás do método <span className="italic">"Do <span className="text-red-600">Vermelho</span> ao <span className="text-green-600">Verde</span>"</span>
+                  Eu estive <span className="text-red-600">dentro do sistema</span>, e hoje sou o seu guia.
                 </h2>
                 
                 <div className="space-y-8 text-lg text-slate-600 leading-relaxed">
                   <p className="font-medium text-slate-800">
-                    Eduardo César não é apenas um autor; ele é um sobrevivente e estrategista do sistema financeiro nacional.
+                    Minha jornada não começou com certificados na parede. Antes de ser o especialista que você vê hoje, eu fui o observador silencioso de uma engrenagem desenhada para lucrar com a sua falta de informação.
                   </p>
                   
                   <p>
-                    Com duas décadas de atuação direta em grandes instituições bancárias, ele decodificou a linguagem complexa dos bancos para criar um sistema que **protege o seu patrimônio** e ensina você a **virar o jogo do banco a seu favor**.
+                    Durante 20 anos, eu trabalhei dentro de grandes bancos. Eu vi de perto como as taxas são calculadas, como as renegociações são manipuladas e como o fruto do seu trabalho é sugado por juros que parecem não ter fim. Eu conheço o "outro lado da mesa" como ninguém.
+                  </p>
+
+                  <p>
+                    Foi quando eu decidi atravessar o portal e decifrar o código que os bancos escondem de você. Entendi que minha verdadeira missão era ser o mentor que eu gostaria que as pessoas tivessem tido. Hoje, uso minha experiência para te dar o mapa da mina e garantir que você nunca mais seja refém do sistema.
                   </p>
 
                   {/* Confidence Elements */}
                   <div className="grid sm:grid-cols-2 gap-6">
-                    <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-green-200 transition-colors">
-                      <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center mb-4">
-                        <Award className="w-6 h-6 text-green-600" />
+                    <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-green-200 transition-colors">
+                      <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mb-4">
+                        <ShieldCheck className="w-6 h-6 text-green-600" />
                       </div>
-                      <h4 className="font-bold text-slate-900 mb-1">CEA ANBIMA</h4>
-                      <p className="text-sm leading-snug">Especialista certificado para recomendar os melhores investimentos.</p>
+                      <h4 className="font-bold text-slate-900 mb-1">Empatia Real</h4>
+                      <p className="text-sm leading-snug">Eu entendo sua dor porque lido com histórias como a sua todos os dias.</p>
                     </div>
                     
-                    <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-green-200 transition-colors">
-                      <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center mb-4">
-                        <Zap className="w-6 h-6 text-green-600" />
+                    <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-green-200 transition-colors">
+                      <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mb-4">
+                        <Award className="w-6 h-6 text-green-600" />
                       </div>
-                      <h4 className="font-bold text-slate-900 mb-1">Método Prático</h4>
-                      <p className="text-sm leading-snug">Estratégias validadas por quem conhece o sistema financeiro por dentro.</p>
+                      <h4 className="font-bold text-slate-900 mb-1">Especialista CEA</h4>
+                      <p className="text-sm leading-snug">Certificação máxima da ANBIMA para recomendar investimentos.</p>
                     </div>
                   </div>
 
                   <div className="pt-4 border-t border-slate-100">
                     <p className="italic text-slate-500 text-base mb-4">
-                      "Minha missão é simples: tirar o poder das mãos dos bancos e devolvê-lo para você. Sem letras miúdas, sem promessas vazias."
+                      "Não estou aqui para te dar uma aula teórica. Estou aqui para te dar a mão e te tirar desse buraco. Eu conheço o caminho de volta para a luz."
                     </p>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-px bg-slate-300" />
@@ -1030,7 +1221,7 @@ export default function App() {
                 </div>
 
                 <a 
-                  href="https://pay.hotmart.com/F102965388G?off=frag2i92&hotfeature=51"
+                  href="https://pay.kiwify.com.br/3djdzQD"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full bg-green-700 hover:bg-green-800 text-white py-5 rounded-2xl font-black text-xl transition-all shadow-xl shadow-green-900/30 flex items-center justify-center gap-3 group"
@@ -1050,6 +1241,17 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Sticky Mobile CTA */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] p-4 bg-white/80 backdrop-blur-lg border-t border-slate-100 shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
+        <button 
+          onClick={scrollToOffer}
+          className="w-full bg-orange-500 text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2"
+        >
+          <Zap className="w-5 h-5 fill-current" />
+          QUERO SAIR DAS DÍVIDAS AGORA
+        </button>
+      </div>
 
       {/* Floating WhatsApp Button */}
       <motion.a
